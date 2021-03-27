@@ -11,9 +11,15 @@ from System.Windows.Forms import *
 
 from System.Windows.Forms import Application, Form, ProgressBar
 from System.Threading import ThreadStart, Thread
+from System import Int32, Int64
+
+__author__ = "Cyril POUPIN"
+__copyright__ = "Copyright (c) 2021 Cyril.P"
+__license__ = "MIT License"
+__version__ = "1.0.1"
 
 class ProgressBarUtils():
-	guid = "a8c3aa76-f731-4086-ae08-8cb41464e425"
+
 	def __init__(self):
 		pass
 		
@@ -22,12 +28,11 @@ class ProgressBarUtils():
 		
 
 	class ProgressBarDialog(Form):
-		def __init__(self, theBroadcaster, numberLines, title):
+		def __init__(self, theBroadcaster, numberLines, myTitle ):
 			self._numberLines = numberLines
 			self._theBroadcaster = theBroadcaster
-			self._title = title
 			self._theBroadcaster.onChange += self.myFunction
-			
+			self._myTitle = myTitle
 			self.InitializeComponent()
 			
 		
@@ -73,7 +78,7 @@ class ProgressBarUtils():
 			self.Controls.Add(self._progressBar1)
 			#self.Controls.Add(self._buttonCancel)
 			self.Name = "MainForm"
-			self.Text = self._title
+			self.Text = self._myTitle
 			self.ResumeLayout(False)
 			
 		def myFunction(self):
@@ -93,7 +98,7 @@ class ProgressBarUtils():
 			
 	
 			
-	class EventHook(object):
+	class EventHook():
 		def __init__(self):
 			self.__handlers = []
 			
@@ -117,21 +122,27 @@ class ProgressBarUtils():
 		def forceClearHandlers(self):
 			for theHandler in self.__handlers:
 				self -= theHandler
-			
+				
 	
 	class MyProgressBroadcaster():
 		"""
 		main Class to Start UI and build a custom Event with a  ContextManager
 		"""
-		def __init__(self, numberLines, title = "My_progressBar"):
-			self.numberLines = numberLines
+		def __init__(self, number_Iteration,  UI_Title = "Progress Bar"):
+			if isinstance(number_Iteration, (Int32, Int64, int)):
+				self._number_Iteration = number_Iteration
+			else:
+				raise Exception("MyProgressBroadcaster : wrong 1st argument need an integer")
+			if isinstance(UI_Title, str):    
+				self._title = UI_Title
+			else:
+				raise Exception("MyProgressBroadcaster : wrong 2nd argument need an string")
 			self.purg = False
-			self.title = title
 			
 		def __enter__(self):		
 			self.onChange = ProgressBarUtils.EventHook()	
 			Application.EnableVisualStyles()
-			f = ProgressBarUtils.ProgressBarDialog(self, self.numberLines, self.title)
+			f = ProgressBarUtils.ProgressBarDialog(self, self._number_Iteration, self._title)
 			f.Show()
 			return 	self
 			
@@ -141,4 +152,3 @@ class ProgressBarUtils():
 					
 							
  
-OUT = ProgressBarUtils
