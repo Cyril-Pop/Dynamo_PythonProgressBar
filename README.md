@@ -1,4 +1,7 @@
 # Dynamo ProgressBar
+
+<img src="/Cyril-Pop/Dynamo_PythonProgressBar/raw/master/ProgressBar.gif" alt="" style="max-width:100%;">
+
 a Progress Bar for Python in DynamoBim
 
 more explanation here with examples of use:
