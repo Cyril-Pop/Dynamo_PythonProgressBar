@@ -14,9 +14,9 @@ from System.Threading import ThreadStart, Thread
 from System import Int32, Int64
 
 __author__ = "Cyril POUPIN"
-__copyright__ = "Copyright (c) 2021 Cyril.P"
+__copyright__ = "Copyright (c) 2022 Cyril.P"
 __license__ = "MIT License"
-__version__ = "1.0.1"
+__version__ = "2.0.1"
 
 class ProgressBarUtils():
 
@@ -40,6 +40,7 @@ class ProgressBarUtils():
 			self._buttonCancel = System.Windows.Forms.Button()
 			self._progressBar1 = System.Windows.Forms.ProgressBar()
 			self._label1 = System.Windows.Forms.Label()
+			self._label_info = System.Windows.Forms.Label()
 			self.SuspendLayout()
 			# 
 			# buttonCancel
@@ -71,20 +72,32 @@ class ProgressBarUtils():
 			self._label1.TabIndex = 2
 			self._label1.Text = "Items Processing 0/" + str(self._numberLines)
 			# 
+			# label_info
+			# 
+			self._label_info.Location = System.Drawing.Point(12, 80)
+			self._label_info.Name = "label_info"
+			self._label_info.Size = System.Drawing.Size(400, 30)
+			self._label_info.TabIndex = 3
+			self._label_info.Text = ""
+			# 
 			# MainForm
 			# 
 			self.ClientSize = System.Drawing.Size(567, 140)
+			self.MinimumSize = System.Drawing.Size.Add(self.ClientSize, System.Drawing.Size(20, 20))
 			self.Controls.Add(self._label1)
+			self.Controls.Add(self._label_info)
 			self.Controls.Add(self._progressBar1)
 			#self.Controls.Add(self._buttonCancel)
 			self.Name = "MainForm"
 			self.Text = self._myTitle
 			self.ResumeLayout(False)
 			
-		def myFunction(self):
+		def myFunction(self, txt_info = None):
 			if self._progressBar1.Value < self._progressBar1.Maximum:
 				self._progressBar1.Value += 1
 				self._label1.Text = "Items Processing {}/{}".format(str(self._progressBar1.Value), str(self._numberLines))
+				if txt_info is not None:
+					self._label_info.Text = txt_info
 				try:
 					Application.DoEvents()
 				except:pass	
@@ -148,7 +161,4 @@ class ProgressBarUtils():
 			
 		def __exit__(self, type, value, traceback):
 			self.onChange.forceClearHandlers()
-
-					
-							
- 
+			
