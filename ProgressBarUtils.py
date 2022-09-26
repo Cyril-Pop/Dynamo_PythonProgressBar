@@ -16,7 +16,7 @@ from System import Int32, Int64
 __author__ = "Cyril POUPIN"
 __copyright__ = "Copyright (c) 2022 Cyril.P"
 __license__ = "MIT License"
-__version__ = "2.0.1"
+__version__ = "2.0.2"
 
 class ProgressBarUtils():
 
@@ -34,6 +34,7 @@ class ProgressBarUtils():
 			self._theBroadcaster.onChange += self.myFunction
 			self._myTitle = myTitle
 			self.InitializeComponent()
+			Application.DoEvents()
 			
 		
 		def InitializeComponent(self):
@@ -58,10 +59,10 @@ class ProgressBarUtils():
 			self._progressBar1.Location = System.Drawing.Point(12, 48)
 			self._progressBar1.Name = "progressBar1"
 			self._progressBar1.Size = System.Drawing.Size(535, 23)
-			self._progressBar1.Minimum = 1
+			self._progressBar1.Minimum = 0
 			self._progressBar1.Maximum = self._numberLines
 			self._progressBar1.Step = 1
-			self._progressBar1.Value = 1
+			self._progressBar1.Value = 0
 			self._progressBar1.TabIndex = 1
 			# 
 			# label1
@@ -92,20 +93,21 @@ class ProgressBarUtils():
 			self.Text = self._myTitle
 			self.ResumeLayout(False)
 			
+			
 		def myFunction(self, txt_info = None):
+			try:
+				Application.DoEvents()
+			except:pass	
 			if self._progressBar1.Value < self._progressBar1.Maximum:
-				self._progressBar1.Value += 1
+				self._progressBar1.PerformStep()
 				self._label1.Text = "Items Processing {}/{}".format(str(self._progressBar1.Value), str(self._numberLines))
 				if txt_info is not None:
 					self._label_info.Text = txt_info
-				try:
-					Application.DoEvents()
-				except:pass	
 			else:
+				self._progressBar1.Value = self._progressBar1.Maximum
 				self._theBroadcaster.onChange -= self.myFunction	
 				self.Close()				
-	
-	
+		
 		def ButtonCancelClick(self, sender, e):
 			self.Close()
 			
@@ -142,6 +144,7 @@ class ProgressBarUtils():
 		main Class to Start UI and build a custom Event with a  ContextManager
 		"""
 		def __init__(self, number_Iteration,  UI_Title = "Progress Bar"):
+			self.f = None
 			if isinstance(number_Iteration, (Int32, Int64, int)):
 				self._number_Iteration = number_Iteration
 			else:
@@ -155,10 +158,15 @@ class ProgressBarUtils():
 		def __enter__(self):		
 			self.onChange = ProgressBarUtils.EventHook()	
 			Application.EnableVisualStyles()
-			f = ProgressBarUtils.ProgressBarDialog(self, self._number_Iteration, self._title)
-			f.Show()
+			self.f = ProgressBarUtils.ProgressBarDialog(self, self._number_Iteration, self._title)
+			self.f.Show()
 			return 	self
 			
 		def __exit__(self, type, value, traceback):
+			self.onChange.next_p()
 			self.onChange.forceClearHandlers()
+			if self.f is not None:
+				self.f.Dispose()
 			
+			
+OUT = ProgressBarUtils
