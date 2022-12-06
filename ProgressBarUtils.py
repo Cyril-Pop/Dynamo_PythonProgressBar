@@ -16,7 +16,7 @@ from System import Int32, Int64
 __author__ = "Cyril POUPIN"
 __copyright__ = "Copyright (c) 2022 Cyril.P"
 __license__ = "MIT License"
-__version__ = "2.0.2"
+__version__ = "2.0.3"
 
 class ProgressBarUtils():
 
@@ -106,6 +106,7 @@ class ProgressBarUtils():
 			else:
 				self._progressBar1.Value = self._progressBar1.Maximum
 				self._theBroadcaster.onChange -= self.myFunction	
+				print("Close")
 				self.Close()				
 		
 		def ButtonCancelClick(self, sender, e):
@@ -162,8 +163,13 @@ class ProgressBarUtils():
 			self.f.Show()
 			return 	self
 			
-		def __exit__(self, type, value, traceback):
+		def __exit__(self, exc_type, exc_value, exc_tb):
+			print("exit")
+			if exc_type:
+				error = "Error : {} at line {}\n".format( exc_value, exc_tb.tb_lineno)
+				print("{}\n{}".format(exc_type.__name__, error))
 			self.onChange.next_p()
+			Thread.Sleep(500)
 			self.onChange.forceClearHandlers()
 			if self.f is not None:
 				self.f.Dispose()
