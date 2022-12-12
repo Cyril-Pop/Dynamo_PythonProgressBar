@@ -174,5 +174,3 @@ class ProgressBarUtils():
 			if self.f is not None:
 				self.f.Dispose()
 			
-			
-OUT = ProgressBarUtils
