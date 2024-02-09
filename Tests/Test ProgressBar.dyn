@@ -1,8 +1,8 @@
 {
-  "Uuid": "e1aa6dbb-3efc-4fbc-bbb4-7d05a9f2fc70",
+  "Uuid": "52977c30-32fd-46bd-bf35-659e53d95225",
   "IsCustomNode": false,
-  "Description": "",
-  "Name": "Test ProgressBar",
+  "Description": null,
+  "Name": "test EventHook_v14(TestPy)",
   "ElementResolver": {
     "ResolutionMap": {}
   },
@@ -12,35 +12,14 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "import sys\r\nimport clr\r\nimport System\r\nclr.AddReference('System.Drawing')\r\nclr.AddReference('System.Windows.Forms')\r\nimport System.Drawing\r\nimport System.Windows.Forms\r\n\r\nfrom System.Drawing import *\r\nfrom System.Windows.Forms import *\r\n\r\nfrom System.Windows.Forms import Application, Form, ProgressBar\r\nfrom System.Threading import ThreadStart, Thread\r\nfrom System import Int32, Int64\r\n\r\n__author__ = \"Cyril POUPIN\"\r\n__copyright__ = \"Copyright (c) 2022 Cyril.P\"\r\n__license__ = \"MIT License\"\r\n__version__ = \"2.0.3\"\r\n\r\nclass ProgressBarUtils():\r\n\r\n\tdef __init__(self):\r\n\t\tpass\r\n\t\t\r\n\tdef __name__(self):\r\n\t\treturn 'ProgressBarUtils'\r\n\t\t\r\n\r\n\tclass ProgressBarDialog(Form):\r\n\t\tdef __init__(self, theBroadcaster, numberLines, myTitle ):\r\n\t\t\tself._numberLines = numberLines\r\n\t\t\tself._theBroadcaster = theBroadcaster\r\n\t\t\tself._theBroadcaster.onChange += self.myFunction\r\n\t\t\tself._myTitle = myTitle\r\n\t\t\tself.InitializeComponent()\r\n\t\t\tApplication.DoEvents()\r\n\t\t\t\r\n\t\t\r\n\t\tdef InitializeComponent(self):\r\n\t\t\tself._buttonCancel = System.Windows.Forms.Button()\r\n\t\t\tself._progressBar1 = System.Windows.Forms.ProgressBar()\r\n\t\t\tself._label1 = System.Windows.Forms.Label()\r\n\t\t\tself._label_info = System.Windows.Forms.Label()\r\n\t\t\tself.SuspendLayout()\r\n\t\t\t# \r\n\t\t\t# buttonCancel\r\n\t\t\t# \r\n\t\t\tself._buttonCancel.Location = System.Drawing.Point(228, 96)\r\n\t\t\tself._buttonCancel.Name = \"buttonCancel\"\r\n\t\t\tself._buttonCancel.Size = System.Drawing.Size(116, 32)\r\n\t\t\tself._buttonCancel.TabIndex = 0\r\n\t\t\tself._buttonCancel.Text = \"Quit\"\r\n\t\t\tself._buttonCancel.UseVisualStyleBackColor = True\r\n\t\t\tself._buttonCancel.Click += self.ButtonCancelClick\r\n\t\t\t# \r\n\t\t\t# progressBar1\r\n\t\t\t# \r\n\t\t\tself._progressBar1.Location = System.Drawing.Point(12, 48)\r\n\t\t\tself._progressBar1.Name = \"progressBar1\"\r\n\t\t\tself._progressBar1.Size = System.Drawing.Size(535, 23)\r\n\t\t\tself._progressBar1.Minimum = 0\r\n\t\t\tself._progressBar1.Maximum = self._numberLines\r\n\t\t\tself._progressBar1.Step = 1\r\n\t\t\tself._progressBar1.Value = 0\r\n\t\t\tself._progressBar1.TabIndex = 1\r\n\t\t\t# \r\n\t\t\t# label1\r\n\t\t\t# \r\n\t\t\tself._label1.Location = System.Drawing.Point(12, 22)\r\n\t\t\tself._label1.Name = \"label1\"\r\n\t\t\tself._label1.Size = System.Drawing.Size(250, 23)\r\n\t\t\tself._label1.TabIndex = 2\r\n\t\t\tself._label1.Text = \"Items Processing 0/\" + str(self._numberLines)\r\n\t\t\t# \r\n\t\t\t# label_info\r\n\t\t\t# \r\n\t\t\tself._label_info.Location = System.Drawing.Point(12, 80)\r\n\t\t\tself._label_info.Name = \"label_info\"\r\n\t\t\tself._label_info.Size = System.Drawing.Size(400, 30)\r\n\t\t\tself._label_info.TabIndex = 3\r\n\t\t\tself._label_info.Text = \"\"\r\n\t\t\t# \r\n\t\t\t# MainForm\r\n\t\t\t# \r\n\t\t\tself.ClientSize = System.Drawing.Size(567, 140)\r\n\t\t\tself.MinimumSize = System.Drawing.Size.Add(self.ClientSize, System.Drawing.Size(20, 20))\r\n\t\t\tself.Controls.Add(self._label1)\r\n\t\t\tself.Controls.Add(self._label_info)\r\n\t\t\tself.Controls.Add(self._progressBar1)\r\n\t\t\t#self.Controls.Add(self._buttonCancel)\r\n\t\t\tself.Name = \"MainForm\"\r\n\t\t\tself.Text = self._myTitle\r\n\t\t\tself.ResumeLayout(False)\r\n\t\t\t\r\n\t\t\t\r\n\t\tdef myFunction(self, txt_info = None):\r\n\t\t\ttry:\r\n\t\t\t\tApplication.DoEvents()\r\n\t\t\texcept:pass\t\r\n\t\t\tif self._progressBar1.Value < self._progressBar1.Maximum:\r\n\t\t\t\tself._progressBar1.PerformStep()\r\n\t\t\t\tself._label1.Text = \"Items Processing {}/{}\".format(str(self._progressBar1.Value), str(self._numberLines))\r\n\t\t\t\tif txt_info is not None:\r\n\t\t\t\t\tself._label_info.Text = txt_info\r\n\t\t\telse:\r\n\t\t\t\tself._progressBar1.Value = self._progressBar1.Maximum\r\n\t\t\t\tself._theBroadcaster.onChange -= self.myFunction\t\r\n\t\t\t\tprint(\"Close\")\r\n\t\t\t\tself.Close()\t\t\t\t\r\n\t\t\r\n\t\tdef ButtonCancelClick(self, sender, e):\r\n\t\t\tself.Close()\r\n\t\t\t\r\n\t\r\n\t\t\t\r\n\tclass EventHook():\r\n\t\tdef __init__(self):\r\n\t\t\tself.__handlers = []\r\n\t\t\t\r\n\t\tdef __iadd__(self, handler):\r\n\t\t\tself.__handlers.append(handler)\r\n\t\t\treturn self\r\n\t\r\n\t\tdef __isub__(self, handler):\r\n\t\t\tself.__handlers.remove(handler)\r\n\t\t\treturn self\r\n\t\r\n\t\tdef next_p(self, *args, **keywargs):\r\n\t\t\tfor handler in self.__handlers:\r\n\t\t\t\thandler(*args, **keywargs)\r\n\t\r\n\t\tdef clearObjectHandlers(self, inObject):\r\n\t\t\tfor theHandler in self.__handlers:\r\n\t\t\t\tif theHandler.im_self == inObject:\r\n\t\t\t\t\tself -= theHandler\r\n\t\t\t\t\t\r\n\t\tdef forceClearHandlers(self):\r\n\t\t\tfor theHandler in self.__handlers:\r\n\t\t\t\tself -= theHandler\r\n\t\t\t\t\r\n\t\r\n\tclass MyProgressBroadcaster():\r\n\t\t\"\"\"\r\n\t\tmain Class to Start UI and build a custom Event with a  ContextManager\r\n\t\t\"\"\"\r\n\t\tdef __init__(self, number_Iteration,  UI_Title = \"Progress Bar\"):\r\n\t\t\tself.f = None\r\n\t\t\tif isinstance(number_Iteration, (Int32, Int64, int)):\r\n\t\t\t\tself._number_Iteration = number_Iteration\r\n\t\t\telse:\r\n\t\t\t\traise Exception(\"MyProgressBroadcaster : wrong 1st argument need an integer\")\r\n\t\t\tif isinstance(UI_Title, str):    \r\n\t\t\t\tself._title = UI_Title\r\n\t\t\telse:\r\n\t\t\t\traise Exception(\"MyProgressBroadcaster : wrong 2nd argument need an string\")\r\n\t\t\tself.purg = False\r\n\t\t\t\r\n\t\tdef __enter__(self):\t\t\r\n\t\t\tself.onChange = ProgressBarUtils.EventHook()\t\r\n\t\t\tApplication.EnableVisualStyles()\r\n\t\t\tself.f = ProgressBarUtils.ProgressBarDialog(self, self._number_Iteration, self._title)\r\n\t\t\tself.f.Show()\r\n\t\t\treturn \tself\r\n\t\t\t\r\n\t\tdef __exit__(self, exc_type, exc_value, exc_tb):\r\n\t\t\tprint(\"exit\")\r\n\t\t\tif exc_type:\r\n\t\t\t\terror = \"Error : {} at line {}\\n\".format( exc_value, exc_tb.tb_lineno)\r\n\t\t\t\tprint(\"{}\\n{}\".format(exc_type.__name__, error))\r\n\t\t\tself.onChange.next_p()\r\n\t\t\tThread.Sleep(500)\r\n\t\t\tself.onChange.forceClearHandlers()\r\n\t\t\tif self.f is not None:\r\n\t\t\t\tself.f.Dispose()\r\n\t\t\t\r\n\t\t\t\r\nOUT = ProgressBarUtils",
+      "Code": "# Charger les bibliothèques DesignScript et Standard Python\r\nimport sys\r\nimport clr\r\nimport System\r\nimport time\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nfrom System.IO import Path\r\ntry:\r\n\tfileDll = IN[0]\r\n\tfolderDll = Path.GetDirectoryName(fileDll)\r\n\tsys.path.append(folderDll)\r\n\tclr.AddReferenceToFileAndPath(fileDll)\r\n\timport ProgressBarUtils\r\n\tfrom ProgressBarUtils import ProgressBarUtils as pgb\r\nexcept:\r\n\ttry:\r\n\t\tfilePy = IN[0]\r\n\t\tfolderPy = Path.GetDirectoryName(filePy)\r\n\t\tsys.path.append(folderPy)\r\n\t\timport ProgressBarUtils\r\n\t\tfrom ProgressBarUtils import ProgressBarUtils as pgb\r\n\texcept:\r\n\t\tpgb = IN[0]()\r\n#\r\nlstProcessing = list(range(10000))\r\nout = []\r\nwith pgb.MyProgressBroadcaster(len(lstProcessing), \"Title Of ProgressBar\") as broadcaster:\r\n    for i in lstProcessing:\r\n        msginfo = \"CUSTOM MESSAGE HERE ....you are at {}/4 progress\".format(i // (len(lstProcessing) // 4))\r\n        broadcaster.onChange.next_p(msginfo)\r\n        #some operations with long duration\r\n        #\r\n        #\r\n        time.sleep(0.001)\r\n        pt0 = i ** 2\r\n        # increment Progress Bar via EventHook\r\n        \r\nOUT = dir(pgb)\r\n\r\n\r\n\r\n",
       "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
-      "Id": "3af720088a1c4cd2a8871921e0196091",
-      "Inputs": [],
-      "Outputs": [
-        {
-          "Id": "67df5bbcff504b15a1b06b845b254230",
-          "Name": "OUT",
-          "Description": "Résultat du script Python",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Exécute un script Python intégré."
-    },
-    {
-      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
-      "NodeType": "PythonScriptNode",
-      "Code": "# Charger les bibliothèques DesignScript et Standard Python\r\nimport sys\r\nimport clr\r\nimport time\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nProgressBarUtils = IN[0]\r\npgb = ProgressBarUtils()\r\n\r\nlstProcessing = list(range(10))\r\nout = []\r\nwith pgb.MyProgressBroadcaster(len(lstProcessing), \"TEST1\") as broadcaster:\r\n\ttime.sleep(1)\r\n\tfor i in lstProcessing:\r\n\t\t#some operations with long duration\r\n\t\t#\r\n\t\t#\r\n\t\t# increment Progress Bar via EventHook\r\n\t\tbroadcaster.onChange.next_p('Test {}'.format(i))\r\n\t\tprint(i)\r\n\t\ttime.sleep(1)\r\n\t\t#break",
-      "Engine": "IronPython2",
-      "VariableInputPorts": true,
-      "Id": "06f9ade9fbff4f02828b45a2401e160b",
+      "Id": "6d37efa1bf904545b3b4782aaf9a3c76",
       "Inputs": [
         {
-          "Id": "17c192b3315241a9b665b7bc3935e329",
+          "Id": "0c977807cec44433a16b2695761e0ef4",
           "Name": "IN[0]",
           "Description": "Input #0",
           "UsingDefaultValue": false,
@@ -51,39 +30,7 @@
       ],
       "Outputs": [
         {
-          "Id": "78607070e8ec4fadbcf64d2225e5540b",
-          "Name": "OUT",
-          "Description": "Résultat du script Python",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Replication": "Disabled",
-      "Description": "Exécute un script Python intégré."
-    },
-    {
-      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
-      "NodeType": "PythonScriptNode",
-      "Code": "# Charger les bibliothèques DesignScript et Standard Python\r\nimport sys\r\nimport clr\r\nimport time\r\nimport System\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nfrom System.IO import Path\r\nfile_PathPy = IN[0]\r\nfolderPy = Path.GetDirectoryName(file_PathPy)\r\nsys.path.append(folderPy)\r\nimport ProgressBarUtils\r\nfrom ProgressBarUtils import ProgressBarUtils as pgb\r\n\r\nlstProcessing = list(range(10))\r\nout = []\r\nwith pgb.MyProgressBroadcaster(len(lstProcessing), \"TEST 2\") as broadcaster:\r\n\ttime.sleep(1)\r\n\tfor i in lstProcessing:\r\n\t\t#some operations with long duration\r\n\t\t#\r\n\t\t#\r\n\t\t# increment Progress Bar via EventHook\r\n\t\tbroadcaster.onChange.next_p('Test {}'.format(i))\r\n\t\tprint(i)\r\n\t\ttime.sleep(1)\r\n\t\t#break",
-      "Engine": "CPython3",
-      "VariableInputPorts": true,
-      "Id": "ac70aaadfc91415cbd4193149fd970af",
-      "Inputs": [
-        {
-          "Id": "d37b2756d3ad4694996236dbede59614",
-          "Name": "IN[0]",
-          "Description": "Input #0",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
-      "Outputs": [
-        {
-          "Id": "2ae7ebdb73784bb6b5100d05bcf444fa",
+          "Id": "157f763e09f148f290359d6f48f5147e",
           "Name": "OUT",
           "Description": "Résultat du script Python",
           "UsingDefaultValue": false,
@@ -97,16 +44,16 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "D:\\REVIT\\Scripts Dynamo\\DEV_01 Recherche et Developpement R&D\\Progress Bar\\v2.0.3\\ProgressBarUtils.py",
+      "HintPath": "F:\\CYRIL_PERSO\\DOC&CATALOGUES2\\DVDN°2  LOGICIELS\\REVIT\\Scripts Dynamo\\DEV_01 Recherche et Developpement R&D\\Progress Bar\\simple_progress_bar_v14\\ProgressBarUtils.py",
       "InputValue": ".\\ProgressBarUtils.py",
       "NodeType": "ExtensionNode",
-      "Id": "2c2572864ecb4f1eaf1c5a55975fde15",
+      "Id": "087b9f3234344a1b96e9763bccd07ecc",
       "Inputs": [],
       "Outputs": [
         {
-          "Id": "24b35c38e2ad4851b0441c622a5507aa",
+          "Id": "4e924d8327364a9fa7ec870c40c36297",
           "Name": "",
-          "Description": "Chemin de fichier",
+          "Description": "Filename",
           "UsingDefaultValue": false,
           "Level": 2,
           "UseLevels": false,
@@ -119,24 +66,15 @@
     {
       "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
       "NodeType": "PythonScriptNode",
-      "Code": "# Charger les bibliothèques DesignScript et Standard Python\r\nimport sys\r\nimport clr\r\nimport time\r\nimport System\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\nfrom System.IO import Path\r\nfile_PathPy = IN[0]\r\nfolderPy = Path.GetDirectoryName(file_PathPy)\r\nsys.path.append(folderPy)\r\nimport ProgressBarUtils\r\nfrom ProgressBarUtils import ProgressBarUtils as pgb\r\n\r\nlstProcessing = list(range(10))\r\nout = []\r\nwith pgb.MyProgressBroadcaster(len(lstProcessing), \"TEST 3\") as broadcaster:\r\n\ttime.sleep(1)\r\n\tfor i in lstProcessing:\r\n\t\t#some operations with long duration\r\n\t\t#\r\n\t\t#\r\n\t\t# increment Progress Bar via EventHook\r\n\t\tbroadcaster.onChange.next_p('Test {}'.format(i))\r\n\t\tprint(i)\r\n\t\ttime.sleep(1)\r\n\t\t#break",
-      "Engine": "CPython3",
+      "Code": "import sys\r\nimport clr\r\nimport System\r\nclr.AddReference('System.Drawing')\r\nclr.AddReference('System.Windows.Forms')\r\nimport System.Drawing\r\nimport System.Windows.Forms\r\n\r\nfrom System.Drawing import *\r\nfrom System.Windows.Forms import *\r\n\r\nfrom System.Windows.Forms import Application, Form, ProgressBar\r\nfrom System.Threading import ThreadStart, Thread\r\nfrom System import Int32, Int64\r\n\r\n__author__ = \"Cyril POUPIN\"\r\n__copyright__ = \"Copyright (c) 2022 Cyril.P\"\r\n__license__ = \"MIT License\"\r\n__version__ = \"2.0.1\"\r\n\r\nclass ProgressBarUtils():\r\n\r\n\tdef __init__(self):\r\n\t\tpass\r\n\t\t\r\n\tdef __name__(self):\r\n\t\treturn 'ProgressBarUtils'\r\n\t\t\r\n\r\n\tclass ProgressBarDialog(Form):\r\n\t\tdef __init__(self, theBroadcaster, numberLines, myTitle ):\r\n\t\t\tself._numberLines = numberLines\r\n\t\t\tself._theBroadcaster = theBroadcaster\r\n\t\t\tself._theBroadcaster.onChange += self.myFunction\r\n\t\t\tself._myTitle = myTitle\r\n\t\t\tself.InitializeComponent()\r\n\t\t\t\r\n\t\t\r\n\t\tdef InitializeComponent(self):\r\n\t\t\tself._buttonCancel = System.Windows.Forms.Button()\r\n\t\t\tself._progressBar1 = System.Windows.Forms.ProgressBar()\r\n\t\t\tself._label1 = System.Windows.Forms.Label()\r\n\t\t\tself._label_info = System.Windows.Forms.Label()\r\n\t\t\tself.SuspendLayout()\r\n\t\t\t# \r\n\t\t\t# buttonCancel\r\n\t\t\t# \r\n\t\t\tself._buttonCancel.Location = System.Drawing.Point(228, 96)\r\n\t\t\tself._buttonCancel.Name = \"buttonCancel\"\r\n\t\t\tself._buttonCancel.Size = System.Drawing.Size(116, 32)\r\n\t\t\tself._buttonCancel.TabIndex = 0\r\n\t\t\tself._buttonCancel.Text = \"Quit\"\r\n\t\t\tself._buttonCancel.UseVisualStyleBackColor = True\r\n\t\t\tself._buttonCancel.Click += self.ButtonCancelClick\r\n\t\t\t# \r\n\t\t\t# progressBar1\r\n\t\t\t# \r\n\t\t\tself._progressBar1.Location = System.Drawing.Point(12, 48)\r\n\t\t\tself._progressBar1.Name = \"progressBar1\"\r\n\t\t\tself._progressBar1.Size = System.Drawing.Size(535, 23)\r\n\t\t\tself._progressBar1.Minimum = 1\r\n\t\t\tself._progressBar1.Maximum = self._numberLines\r\n\t\t\tself._progressBar1.Step = 1\r\n\t\t\tself._progressBar1.Value = 1\r\n\t\t\tself._progressBar1.TabIndex = 1\r\n\t\t\t# \r\n\t\t\t# label1\r\n\t\t\t# \r\n\t\t\tself._label1.Location = System.Drawing.Point(12, 22)\r\n\t\t\tself._label1.Name = \"label1\"\r\n\t\t\tself._label1.Size = System.Drawing.Size(250, 23)\r\n\t\t\tself._label1.TabIndex = 2\r\n\t\t\tself._label1.Text = \"Items Processing 0/\" + str(self._numberLines)\r\n\t\t\t# \r\n\t\t\t# label_info\r\n\t\t\t# \r\n\t\t\tself._label_info.Location = System.Drawing.Point(12, 80)\r\n\t\t\tself._label_info.Name = \"label_info\"\r\n\t\t\tself._label_info.Size = System.Drawing.Size(400, 30)\r\n\t\t\tself._label_info.TabIndex = 3\r\n\t\t\tself._label_info.Text = \"\"\r\n\t\t\t# \r\n\t\t\t# MainForm\r\n\t\t\t# \r\n\t\t\tself.ClientSize = System.Drawing.Size(567, 140)\r\n\t\t\tself.MinimumSize = System.Drawing.Size.Add(self.ClientSize, System.Drawing.Size(20, 20))\r\n\t\t\tself.Controls.Add(self._label1)\r\n\t\t\tself.Controls.Add(self._label_info)\r\n\t\t\tself.Controls.Add(self._progressBar1)\r\n\t\t\t#self.Controls.Add(self._buttonCancel)\r\n\t\t\tself.Name = \"MainForm\"\r\n\t\t\tself.Text = self._myTitle\r\n\t\t\tself.ResumeLayout(False)\r\n\t\t\t\r\n\t\tdef myFunction(self, txt_info = None):\r\n\t\t\tif self._progressBar1.Value < self._progressBar1.Maximum:\r\n\t\t\t\tself._progressBar1.Value += 1\r\n\t\t\t\tself._label1.Text = \"Items Processing {}/{}\".format(str(self._progressBar1.Value), str(self._numberLines))\r\n\t\t\t\tif txt_info is not None:\r\n\t\t\t\t\tself._label_info.Text = txt_info\r\n\t\t\t\ttry:\r\n\t\t\t\t\tApplication.DoEvents()\r\n\t\t\t\texcept:pass\t\r\n\t\t\telse:\r\n\t\t\t\tself._theBroadcaster.onChange -= self.myFunction\t\r\n\t\t\t\tself.Close()\t\t\t\t\r\n\t\r\n\t\r\n\t\tdef ButtonCancelClick(self, sender, e):\r\n\t\t\tself.Close()\r\n\t\t\t\r\n\t\r\n\t\t\t\r\n\tclass EventHook():\r\n\t\tdef __init__(self):\r\n\t\t\tself.__handlers = []\r\n\t\t\t\r\n\t\tdef __iadd__(self, handler):\r\n\t\t\tself.__handlers.append(handler)\r\n\t\t\treturn self\r\n\t\r\n\t\tdef __isub__(self, handler):\r\n\t\t\tself.__handlers.remove(handler)\r\n\t\t\treturn self\r\n\t\r\n\t\tdef next_p(self, *args, **keywargs):\r\n\t\t\tfor handler in self.__handlers:\r\n\t\t\t\thandler(*args, **keywargs)\r\n\t\r\n\t\tdef clearObjectHandlers(self, inObject):\r\n\t\t\tfor theHandler in self.__handlers:\r\n\t\t\t\tif theHandler.im_self == inObject:\r\n\t\t\t\t\tself -= theHandler\r\n\t\t\t\t\t\r\n\t\tdef forceClearHandlers(self):\r\n\t\t\tfor theHandler in self.__handlers:\r\n\t\t\t\tself -= theHandler\r\n\t\t\t\t\r\n\t\r\n\tclass MyProgressBroadcaster():\r\n\t\t\"\"\"\r\n\t\tmain Class to Start UI and build a custom Event with a  ContextManager\r\n\t\t\"\"\"\r\n\t\tdef __init__(self, number_Iteration,  UI_Title = \"Progress Bar\"):\r\n\t\t\tif isinstance(number_Iteration, (Int32, Int64, int)):\r\n\t\t\t\tself._number_Iteration = number_Iteration\r\n\t\t\telse:\r\n\t\t\t\traise Exception(\"MyProgressBroadcaster : wrong 1st argument need an integer\")\r\n\t\t\tif isinstance(UI_Title, str):    \r\n\t\t\t\tself._title = UI_Title\r\n\t\t\telse:\r\n\t\t\t\traise Exception(\"MyProgressBroadcaster : wrong 2nd argument need an string\")\r\n\t\t\tself.purg = False\r\n\t\t\t\r\n\t\tdef __enter__(self):\t\t\r\n\t\t\tself.onChange = ProgressBarUtils.EventHook()\t\r\n\t\t\tApplication.EnableVisualStyles()\r\n\t\t\tf = ProgressBarUtils.ProgressBarDialog(self, self._number_Iteration, self._title)\r\n\t\t\tf.Show()\r\n\t\t\treturn \tself\r\n\t\t\t\r\n\t\tdef __exit__(self, type, value, traceback):\r\n\t\t\tself.onChange.forceClearHandlers()\r\n\t\t\t\r\nOUT = ProgressBarUtils",
+      "Engine": "IronPython2",
+      "EngineName": "IronPython2",
       "VariableInputPorts": true,
-      "Id": "045a60eb43c5457a97556fbb31ea96ec",
-      "Inputs": [
-        {
-          "Id": "1e0a73580953497ab3604a3cd391e481",
-          "Name": "IN[0]",
-          "Description": "Input #0",
-          "UsingDefaultValue": false,
-          "Level": 2,
-          "UseLevels": false,
-          "KeepListStructure": false
-        }
-      ],
+      "Id": "ba8953908ce548f2af19cd0ecaf87ccd",
+      "Inputs": [],
       "Outputs": [
         {
-          "Id": "f2d0ad767c3e4878b0e37f84b7f3f0a1",
+          "Id": "29497d74fe624b6696cdaf99ba7d1ac2",
           "Name": "OUT",
           "Description": "Résultat du script Python",
           "UsingDefaultValue": false,
@@ -150,14 +88,14 @@
     },
     {
       "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
-      "HintPath": "D:\\REVIT\\Scripts Dynamo\\DEV_01 Recherche et Developpement R&D\\Progress Bar\\v2.0.3\\ProgressBarUtils.py",
+      "HintPath": "F:\\CYRIL_PERSO\\DOC&CATALOGUES2\\DVDN°2  LOGICIELS\\REVIT\\Scripts Dynamo\\DEV_01 Recherche et Developpement R&D\\Progress Bar\\simple_progress_bar_v14\\ProgressBarUtils.py",
       "InputValue": ".\\ProgressBarUtils.py",
       "NodeType": "ExtensionNode",
-      "Id": "df76e4f4c969446a92502ac2cba6c200",
+      "Id": "0b703ba18b104e45923dde5cc1fec739",
       "Inputs": [],
       "Outputs": [
         {
-          "Id": "d2e360e7670c4c69ad441c8956a3d00a",
+          "Id": "db7485a161304f77aaab362a70e76eb2",
           "Name": "",
           "Description": "Chemin de fichier",
           "UsingDefaultValue": false,
@@ -172,38 +110,20 @@
   ],
   "Connectors": [
     {
-      "Start": "67df5bbcff504b15a1b06b845b254230",
-      "End": "17c192b3315241a9b665b7bc3935e329",
-      "Id": "e7e034d421344cddaacfff7ea5abbdd9",
-      "IsHidden": "False"
-    },
-    {
-      "Start": "24b35c38e2ad4851b0441c622a5507aa",
-      "End": "d37b2756d3ad4694996236dbede59614",
-      "Id": "a1dc673b27734d6ebc0923aa0928a50d",
-      "IsHidden": "False"
-    },
-    {
-      "Start": "d2e360e7670c4c69ad441c8956a3d00a",
-      "End": "1e0a73580953497ab3604a3cd391e481",
-      "Id": "f3d70b580615477ba3bbcbaebaba8c30",
+      "Start": "29497d74fe624b6696cdaf99ba7d1ac2",
+      "End": "0c977807cec44433a16b2695761e0ef4",
+      "Id": "ef38c99b2b404e6cb75c2743299144d8",
       "IsHidden": "False"
     }
   ],
   "Dependencies": [],
   "NodeLibraryDependencies": [
     {
-      "Name": "ProgressBarUtils - old.py",
-      "ReferenceType": "External",
-      "Nodes": [
-        "2c2572864ecb4f1eaf1c5a55975fde15"
-      ]
-    },
-    {
       "Name": "ProgressBarUtils.py",
       "ReferenceType": "External",
       "Nodes": [
-        "df76e4f4c969446a92502ac2cba6c200"
+        "087b9f3234344a1b96e9763bccd07ecc",
+        "0b703ba18b104e45923dde5cc1fec739"
       ]
     }
   ],
@@ -212,18 +132,18 @@
   "ExtensionWorkspaceData": [
     {
       "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
-      "Name": "Properties",
-      "Version": "2.13",
+      "Name": "Propriétés",
+      "Version": "2.15",
       "Data": {}
     },
     {
       "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
       "Name": "Generative Design",
-      "Version": "2.0",
+      "Version": "3.0",
       "Data": {}
     }
   ],
-  "Author": "",
+  "Author": "None provided",
   "Linting": {
     "activeLinter": "Aucun",
     "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
@@ -236,7 +156,7 @@
       "ScaleFactor": 1.0,
       "HasRunWithoutCrash": true,
       "IsVisibleInDynamoLibrary": true,
-      "Version": "2.13.1.3887",
+      "Version": "2.16.0.2501",
       "RunType": "Manual",
       "RunPeriod": "1000"
     },
@@ -257,134 +177,47 @@
       {
         "Name": "Python Script",
         "ShowGeometry": true,
-        "Id": "3af720088a1c4cd2a8871921e0196091",
+        "Id": "6d37efa1bf904545b3b4782aaf9a3c76",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 188.0,
-        "Y": 157.0
-      },
-      {
-        "Name": "Python Script",
-        "ShowGeometry": true,
-        "Id": "06f9ade9fbff4f02828b45a2401e160b",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": 497.0,
-        "Y": 155.0
-      },
-      {
-        "Name": "Python Script",
-        "ShowGeometry": true,
-        "Id": "ac70aaadfc91415cbd4193149fd970af",
-        "IsSetAsInput": false,
-        "IsSetAsOutput": false,
-        "Excluded": false,
-        "X": 560.12166172106811,
-        "Y": 472.18249258160239
+        "X": 925.39717722332148,
+        "Y": 147.81465497877369
       },
       {
         "Name": "File Path",
         "ShowGeometry": true,
-        "Id": "2c2572864ecb4f1eaf1c5a55975fde15",
+        "Id": "087b9f3234344a1b96e9763bccd07ecc",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 168.62166172106811,
-        "Y": 464.68249258160239
+        "X": 457.57401694936812,
+        "Y": -39.645581122759125
       },
       {
-        "Name": "Python Script",
+        "Name": "Python Script | Module ProgressBarUtils",
         "ShowGeometry": true,
-        "Id": "045a60eb43c5457a97556fbb31ea96ec",
+        "Id": "ba8953908ce548f2af19cd0ecaf87ccd",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 572.32195845697333,
-        "Y": 744.813056379822
+        "X": 391.75716714089867,
+        "Y": 147.51867951375954
       },
       {
         "Name": "File Path",
         "ShowGeometry": true,
-        "Id": "df76e4f4c969446a92502ac2cba6c200",
+        "Id": "0b703ba18b104e45923dde5cc1fec739",
         "IsSetAsInput": false,
         "IsSetAsOutput": false,
         "Excluded": false,
-        "X": 180.82195845697333,
-        "Y": 737.313056379822
+        "X": 471.66881948508092,
+        "Y": -208.44299336717393
       }
     ],
-    "Annotations": [
-      {
-        "Id": "3d6413cf26584a40b1ea9a9bfe0e6c06",
-        "Title": "Test 1 via Node",
-        "DescriptionText": "<Double-cliquer ici pour modifier la description du groupe>",
-        "IsExpanded": true,
-        "WidthAdjustment": 0.0,
-        "HeightAdjustment": 0.0,
-        "Nodes": [
-          "3af720088a1c4cd2a8871921e0196091",
-          "06f9ade9fbff4f02828b45a2401e160b"
-        ],
-        "HasNestedGroups": false,
-        "Left": 178.0,
-        "Top": 82.0,
-        "Width": 503.0,
-        "Height": 207.0,
-        "FontSize": 36.0,
-        "InitialTop": 155.0,
-        "InitialHeight": 147.0,
-        "TextblockHeight": 63.0,
-        "Background": "#FFC1D676"
-      },
-      {
-        "Id": "c79167de2f6849688c68cb3dfba35d6b",
-        "Title": "Test 2 via PyFile Ipy2",
-        "DescriptionText": "<Double-cliquer ici pour modifier la description du groupe>",
-        "IsExpanded": true,
-        "WidthAdjustment": 0.0,
-        "HeightAdjustment": 0.0,
-        "Nodes": [
-          "ac70aaadfc91415cbd4193149fd970af",
-          "2c2572864ecb4f1eaf1c5a55975fde15"
-        ],
-        "HasNestedGroups": false,
-        "Left": 158.62166172106811,
-        "Top": 391.68249258160239,
-        "Width": 585.5,
-        "Height": 214.00000000000006,
-        "FontSize": 36.0,
-        "InitialTop": 464.68249258160239,
-        "InitialHeight": 152.50000000000006,
-        "TextblockHeight": 63.0,
-        "Background": "#FFC1D676"
-      },
-      {
-        "Id": "839dc696e34249cb9b91a785c214fa7f",
-        "Title": "Test 3 via PyFile CPython3",
-        "DescriptionText": "<Double-cliquer ici pour modifier la description du groupe>",
-        "IsExpanded": true,
-        "WidthAdjustment": 0.0,
-        "HeightAdjustment": 0.0,
-        "Nodes": [
-          "045a60eb43c5457a97556fbb31ea96ec",
-          "df76e4f4c969446a92502ac2cba6c200"
-        ],
-        "HasNestedGroups": false,
-        "Left": 170.82195845697333,
-        "Top": 664.313056379822,
-        "Width": 585.5,
-        "Height": 214.0,
-        "FontSize": 36.0,
-        "InitialTop": 737.313056379822,
-        "InitialHeight": 152.5,
-        "TextblockHeight": 63.0,
-        "Background": "#FFC1D676"
-      }
-    ],
-    "X": 681.8125,
-    "Y": 190.44124999999997,
-    "Zoom": 0.8425
+    "Annotations": [],
+    "X": 85.662184109058558,
+    "Y": 134.06189228599862,
+    "Zoom": 0.85276592558149789
   }
 }
