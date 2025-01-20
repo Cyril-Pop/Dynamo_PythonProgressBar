@@ -1,0 +1,376 @@
+{
+  "Uuid": "52977c30-32fd-46bd-bf35-659e53d95225",
+  "IsCustomNode": false,
+  "Description": null,
+  "Name": "example multiple ProgressBar",
+  "ElementResolver": {
+    "ResolutionMap": {}
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "NodeType": "CodeBlockNode",
+      "Code": "0;\n100;\n120;\n220;",
+      "Id": "30e9983fe2314650975318ac7a0bdb5f",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "6e5f161dde7d4842843c9afa3fc4b79c",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "a457d29e8d30483a9a12ec5b40b376d6",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "b2925c11fea04310acde0a3604886a0a",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "924a62d8e2fa49a8b496384fcd3c201b",
+          "Name": "",
+          "Description": "Valeur de l'expression à la ligne 4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Permet de créer le code DesignScript directement"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.IntegerSlider, CoreNodeModels",
+      "NodeType": "NumberInputNode",
+      "NumberType": "Integer",
+      "InputValue": 2370,
+      "MaximumValue": 4000,
+      "MinimumValue": 10,
+      "StepValue": 10,
+      "Id": "9e41daea15d54909afb48e48bc1a9bb2",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "0b0974ee9dcd414f8a6e1f49347e3aa6",
+          "Name": "",
+          "Description": "Int64",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Curseur qui génère des valeurs entières."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "import sys\r\nimport clr\r\nimport System\r\nclr.AddReference('System.Drawing')\r\nclr.AddReference('System.Windows.Forms')\r\nimport System.Drawing\r\nimport System.Windows.Forms\r\n\r\nfrom System.Drawing import *\r\nfrom System.Windows.Forms import *\r\n\r\nfrom System.Windows.Forms import Application, Form, ProgressBar\r\nfrom System.Threading import ThreadStart, Thread\r\n\r\nclass ProgressBarUtils():\r\n\tguid = \"a8c3aa76-f731-4086-ae08-8cb41464e425\"\r\n\tdef __init__(self):\r\n\t\tpass\r\n\t\t\r\n\tdef __name__(self):\r\n\t\treturn 'ProgressBarUtils'\r\n\t\t\r\n\r\n\tclass ProgressBarDialog(Form):\r\n\t\tdef __init__(self, theBroadcaster, lstNameOperation, title):\r\n\t\t\tself._lstNameOperation = lstNameOperation #numberLines is a list of number\r\n\t\t\tprint(lstNameOperation)\r\n\t\t\tself._theBroadcaster = theBroadcaster\r\n\t\t\tself._title = title\r\n\t\t\tself._theBroadcaster.onChange += self.myFunction\r\n\t\t\tself.lstProgressBar = []\r\n\t\t\tself.lstlabel = []\r\n\t\t\tself._counter = 0\r\n\t\t\tself._defaultValue = 2000000 # set a large valu\r\n\t\t\tself.InitializeComponent()\r\n\t\t\t\r\n\t\t\r\n\t\tdef InitializeComponent(self):\r\n\t\t\tself._buttonCancel = System.Windows.Forms.Button()\r\n\t\t\tself.SuspendLayout()\r\n\t\t\t# \r\n\t\t\t# buttonCancel\r\n\t\t\t# \r\n\t\t\tself._buttonCancel.Location = System.Drawing.Point(228, 96)\r\n\t\t\tself._buttonCancel.Name = \"buttonCancel\"\r\n\t\t\tself._buttonCancel.Size = System.Drawing.Size(116, 32)\r\n\t\t\tself._buttonCancel.TabIndex = 0\r\n\t\t\tself._buttonCancel.Text = \"Quit\"\r\n\t\t\tself._buttonCancel.UseVisualStyleBackColor = True\r\n\t\t\tself._buttonCancel.Click += self.ButtonCancelClick\r\n\t\t\ti = 22\r\n\t\t\tfor prefixLabel in self._lstNameOperation:\r\n\t\t\t\t# label1\r\n\t\t\t\t# \r\n\t\t\t\tself._label1 = System.Windows.Forms.Label()\r\n\t\t\t\tself._label1.Location = System.Drawing.Point(12, i)\r\n\t\t\t\tself._label1.Name = \"label\"\r\n\t\t\t\tself._label1.Size = System.Drawing.Size(250, 23)\r\n\t\t\t\tself._label1.TabIndex = 2\r\n\t\t\t\tself._label1.Text = \"{} : 0/{}\".format(prefixLabel, \"???\")\r\n\t\t\t\tself.Controls.Add(self._label1)\r\n\t\t\t\tself.lstlabel.append(self._label1)\r\n\t\t\t\t# \r\n\t\t\t\t# progressBar1\r\n\t\t\t\t# \r\n\t\t\t\tself._progressBar1 = System.Windows.Forms.ProgressBar()\r\n\t\t\t\tself._progressBar1.Location = System.Drawing.Point(12, i + 26)\r\n\t\t\t\tself._progressBar1.Name = \"progressBar\"\r\n\t\t\t\tself._progressBar1.Size = System.Drawing.Size(535, 23)\r\n\t\t\t\tself._progressBar1.Minimum = 1\r\n\t\t\t\tself._progressBar1.Maximum = self._defaultValue\r\n\t\t\t\tself._progressBar1.Step = 1\r\n\t\t\t\tself._progressBar1.Value = 1\r\n\t\t\t\tself._progressBar1.TabIndex = 1\r\n\t\t\t\tself.Controls.Add(self._progressBar1)\r\n\t\t\t\tself.lstProgressBar.append(self._progressBar1)\r\n\t\t\t\ti += 80\r\n\t\t\t\t\r\n\t\t\ti += 20\r\n\t\t\t# \r\n\t\t\t# MainForm\r\n\t\t\t# \r\n\t\t\tself.ClientSize = System.Drawing.Size(567, i)\r\n\r\n\t\t\t#self.Controls.Add(self._buttonCancel)\r\n\t\t\tself.Name = \"MainForm\"\r\n\t\t\tself.Text = self._title\r\n\t\t\tself.ResumeLayout(False)\r\n\t\t\t\r\n\t\tdef myFunction(self):\r\n\t\t\tself._counter += 1\r\n\t\t\tmaxOperat = sum(x.Maximum for x in self.lstProgressBar)\r\n\t\t\tif self._counter < maxOperat:\r\n\t\t\t\tfor p, l , prefixLabel in zip(self.lstProgressBar, self.lstlabel, self._lstNameOperation):\r\n\t\t\t\t\tif p.Value < p.Maximum:\r\n\t\t\t\t\t\tp.Value += 1\r\n\t\t\t\t\t\tl.Text =  \"{} : {}/{}\".format(prefixLabel, str(p.Value), str(p.Maximum))\r\n\t\t\t\t\t\tbreak\r\n\t\t\t\t\telse:\r\n\t\t\t\t\t\tp.Value = p.Maximum\r\n\t\t\t\ttry:\r\n\t\t\t\t\tApplication.DoEvents()\r\n\t\t\t\texcept:pass\t\r\n\t\t\t\t\t\r\n\t\t\telse:\r\n\t\t\t\tself._theBroadcaster.onChange -= self.myFunction\t\r\n\t\t\t\tself.Close()\t\t\t\t\r\n\t\r\n\t\r\n\t\tdef ButtonCancelClick(self, sender, e):\r\n\t\t\tself.Close()\r\n\t\t\t\r\n\t\r\n\t\t\t\r\n\tclass EventHook(object):\r\n\t\tdef __init__(self):\r\n\t\t\tself.__handlers = []\r\n\t\t\t\r\n\t\tdef __iadd__(self, handler):\r\n\t\t\tself.__handlers.append(handler)\r\n\t\t\treturn self\r\n\t\r\n\t\tdef __isub__(self, handler):\r\n\t\t\tself.__handlers.remove(handler)\r\n\t\t\treturn self\r\n\t\r\n\t\tdef next_p(self, *args, **keywargs):\r\n\t\t\tfor handler in self.__handlers:\r\n\t\t\t\thandler(*args, **keywargs)\r\n\t\r\n\t\tdef clearObjectHandlers(self, inObject):\r\n\t\t\tfor theHandler in self.__handlers:\r\n\t\t\t\tif theHandler.im_self == inObject:\r\n\t\t\t\t\tself -= theHandler\r\n\t\t\t\t\t\r\n\t\tdef forceClearHandlers(self):\r\n\t\t\tfor theHandler in self.__handlers:\r\n\t\t\t\tself -= theHandler\r\n\t\t\t\r\n\t\r\n\tclass MyProgressBroadcaster():\r\n\t\t\"\"\"\r\n\t\tmain Class to Start UI and build a custom Event with a  ContextManager\r\n\t\t\"\"\"\r\n\t\tdef __init__(self, numberLines, title = \"My_progressBar\"):\r\n\t\t\tself.numberLines = numberLines\r\n\t\t\tself.purg = False\r\n\t\t\tself.title = title\r\n\t\t\tself.f = None\r\n\t\t\t\r\n\t\tdef SetProgressAtIndex(self, idx, number):\r\n\t\t\tif self.f is not None:\r\n\t\t\t\tself.f.lstProgressBar[idx].Maximum = number\r\n\t\t\t\t\r\n\t\tdef __enter__(self):\t\t\r\n\t\t\tself.onChange = ProgressBarUtils.EventHook()\t\r\n\t\t\tApplication.EnableVisualStyles()\r\n\t\t\tself.f = ProgressBarUtils.ProgressBarDialog(self, self.numberLines, self.title)\r\n\t\t\tself.f.Show()\r\n\t\t\treturn \tself\r\n\t\t\t\r\n\t\tdef __exit__(self, type, value, traceback):\r\n\t\t\tself.onChange.forceClearHandlers()\r\n\r\n\r\nOUT = ProgressBarUtils",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "3eac962d566d4952b10295d51d54d54a",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "46c6e246af33428bb33a5ab0154596b8",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "NodeType": "PythonScriptNode",
+      "Code": "# Charger les bibliothèques DesignScript et Standard Python\r\nimport sys\r\nimport clr\r\nimport System\r\nimport time\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport  Autodesk.DesignScript.Geometry as DS\r\nclr.AddReference('DSCoreNodes') \r\nimport DSCore\r\nfrom DSCore import *\r\nclr.AddReference('GeometryColor')\r\nfrom Modifiers import GeometryColor\r\n\r\nclr.AddReference('System.Drawing')\r\nclr.AddReference('System.Windows.Forms')\r\nimport System.Drawing\r\nimport System.Windows.Forms\r\n\r\nfrom System.Drawing import *\r\nfrom System.Windows.Forms import *\r\n\r\nfrom System.Windows.Forms import Application, Form, ProgressBar\r\nfrom System.Threading import ThreadStart, Thread\r\n\r\ndef tringleGenerator(numberLines):\r\n\tglobal out\r\n\tfor i in range(numberLines):\r\n\t\t#Thread.Sleep(1)\r\n\t\tpta = DS.Point.ByCoordinates(myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr))\r\n\t\tptb = DS.Point.ByCoordinates(myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr))\r\n\t\tif pta.DistanceTo(ptb) < 0.1:\r\n\t\t\tptb = DS.Point.ByCoordinates(myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr))\r\n\t\tptc = DS.Point.ByCoordinates(myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr), myRandom.Next(mintr, maxtr))\t\r\n\t\ttriang = DS.Surface.ByPerimeterPoints([pta,ptb, ptc])\r\n\t\ttriang = GeometryColor.ByGeometryColor(triang, DSCore.Color.ByARGB(255,myRandom.Next(255), myRandom.Next(255), myRandom.Next(255)))\t\r\n\t\tout.append(triang)\r\n\t\t# fire event\r\n\t\tbroadcaster.onChange.next_p()\r\n\r\nmoduleBarUtils = IN[0]()\r\nnumberTriangA = IN[1]\r\nnumberTriangB = IN[2]\r\nnumberTriangC = IN[3]\r\nmintr = IN[4]\r\nmaxtr = IN[5]\r\n\r\n\r\nmyRandom = System.Random()\r\nout = []\r\n# define a default list as process\r\nlstOperation = ['Operation1', 'Operation2', 'Operation3']\r\nwith moduleBarUtils.MyProgressBroadcaster(lstOperation, \"Test IronPython2\") as broadcaster:\r\n\t# set new value progress Bar for Operation1\r\n\tbroadcaster.SetProgressAtIndex(0, numberTriangA)\r\n\ttringleGenerator(numberTriangA)\r\n\r\n\t# set new value progress Bar for Operation2\r\n\tbroadcaster.SetProgressAtIndex(1, numberTriangB)\r\n\ttringleGenerator(numberTriangB)\r\n\r\n\t# set new value progress Bar for Operation3\r\n\tbroadcaster.SetProgressAtIndex(2, numberTriangC)\r\n\ttringleGenerator(numberTriangC)\r\n\r\nOUT = out\r\n\r\n\r\n\r\n",
+      "Engine": "IronPython2",
+      "VariableInputPorts": true,
+      "Id": "0838f5d9efbb49b5925dc67dffae154e",
+      "Inputs": [
+        {
+          "Id": "0fdb01eddd394c959bc5e5c018206748",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "e1eecfd3414d42b5a5980005fe9d4f1a",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "953335c21e9b436b9d6121465241e5c8",
+          "Name": "IN[2]",
+          "Description": "Input #2",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "3c16baf921bf4f3fa824b39c9bcde794",
+          "Name": "IN[3]",
+          "Description": "Input #3",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "069b6d2b65244e40a81ef8539af36b7f",
+          "Name": "IN[4]",
+          "Description": "Input #4",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "74a576c5e4ee49aa8a6695df0bc67ed2",
+          "Name": "IN[5]",
+          "Description": "Input #5",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "2fd41e3a9a65419699f8aca09f7e97bb",
+          "Name": "OUT",
+          "Description": "Résultat du script Python",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Exécute un script Python intégré."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.IntegerSlider, CoreNodeModels",
+      "NodeType": "NumberInputNode",
+      "NumberType": "Integer",
+      "InputValue": 2980,
+      "MaximumValue": 4000,
+      "MinimumValue": 10,
+      "StepValue": 10,
+      "Id": "051cfe756e164487b1efd9f068ac9797",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "102fd499709943a48cb97e19754be9cf",
+          "Name": "",
+          "Description": "Int64",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Curseur qui génère des valeurs entières."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.IntegerSlider, CoreNodeModels",
+      "NodeType": "NumberInputNode",
+      "NumberType": "Integer",
+      "InputValue": 1750,
+      "MaximumValue": 4000,
+      "MinimumValue": 10,
+      "StepValue": 10,
+      "Id": "3dcf06c2247c4b57b5f27ef5785c86e0",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "80b8dbcc0c564ad79117c6c956a2a813",
+          "Name": "",
+          "Description": "Int64",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Curseur qui génère des valeurs entières."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "b2925c11fea04310acde0a3604886a0a",
+      "End": "069b6d2b65244e40a81ef8539af36b7f",
+      "Id": "ee71d1569cab4c02a894167bc03d1589"
+    },
+    {
+      "Start": "924a62d8e2fa49a8b496384fcd3c201b",
+      "End": "74a576c5e4ee49aa8a6695df0bc67ed2",
+      "Id": "509e839794d74fb582d5955884e6687f"
+    },
+    {
+      "Start": "0b0974ee9dcd414f8a6e1f49347e3aa6",
+      "End": "e1eecfd3414d42b5a5980005fe9d4f1a",
+      "Id": "1a3f55ddcc554b408bcee2a7909c17a0"
+    },
+    {
+      "Start": "46c6e246af33428bb33a5ab0154596b8",
+      "End": "0fdb01eddd394c959bc5e5c018206748",
+      "Id": "4fc982404e7443dcbb89097d47252fb8"
+    },
+    {
+      "Start": "102fd499709943a48cb97e19754be9cf",
+      "End": "953335c21e9b436b9d6121465241e5c8",
+      "Id": "d2b2f6aa5e0940ed89bb98e45884ea70"
+    },
+    {
+      "Start": "80b8dbcc0c564ad79117c6c956a2a813",
+      "End": "3c16baf921bf4f3fa824b39c9bcde794",
+      "Id": "fb0242b95eea4195892defa7907aca98"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.10.0.3455",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "Aperçu en arrière-plan",
+      "EyeX": 308.24411010742188,
+      "EyeY": 296.68246459960938,
+      "EyeZ": 68.409721374511719,
+      "LookX": -180.92388916015625,
+      "LookY": -100.52169799804688,
+      "LookZ": -89.376792907714844,
+      "UpX": -0.2184167355298996,
+      "UpY": 0.96987205743789673,
+      "UpZ": -0.10789939016103745
+    },
+    "NodeViews": [
+      {
+        "ShowGeometry": true,
+        "Name": "min max triangulation",
+        "Id": "30e9983fe2314650975318ac7a0bdb5f",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1126.5740707620957,
+        "Y": -173.72723350396478
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "number of Triangle pass1",
+        "Id": "9e41daea15d54909afb48e48bc1a9bb2",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1015.9987255385006,
+        "Y": -402.79007626068267
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script | Module ProgressBarUtils",
+        "Id": "3eac962d566d4952b10295d51d54d54a",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1005.7661109387473,
+        "Y": -501.59845274341
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "Python Script | Main",
+        "Id": "0838f5d9efbb49b5925dc67dffae154e",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1731.696929028767,
+        "Y": -402.22284864770745
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "number of Triangle pass2",
+        "Id": "051cfe756e164487b1efd9f068ac9797",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1019.7745322264022,
+        "Y": -334.57085034307858
+      },
+      {
+        "ShowGeometry": true,
+        "Name": "number of Triangle pass3",
+        "Id": "3dcf06c2247c4b57b5f27ef5785c86e0",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "X": 1014.8384004985171,
+        "Y": -259.23038418174934
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "c5aee70994794fd6b945a6b68cd1653b",
+        "Title": "sample Example",
+        "Nodes": [
+          "30e9983fe2314650975318ac7a0bdb5f",
+          "9e41daea15d54909afb48e48bc1a9bb2",
+          "3eac962d566d4952b10295d51d54d54a",
+          "0838f5d9efbb49b5925dc67dffae154e",
+          "3dcf06c2247c4b57b5f27ef5785c86e0",
+          "051cfe756e164487b1efd9f068ac9797"
+        ],
+        "Left": 995.76611093874726,
+        "Top": -554.59845274341,
+        "Width": 931.93081809001978,
+        "Height": 519.87121923944528,
+        "FontSize": 36.0,
+        "InitialTop": -501.59845274341,
+        "InitialHeight": 392.2659460637488,
+        "TextblockHeight": 43.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": -949.14975933569212,
+    "Y": 708.41973429825191,
+    "Zoom": 1.1745378873895875
+  }
+}
