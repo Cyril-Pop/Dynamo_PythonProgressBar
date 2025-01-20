@@ -1,0 +1,487 @@
+{
+  "Uuid": "33186ffd-ae89-4314-bde1-9572108f9557",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "progressBar_wpf_DYN3_v0.1",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "Point": {
+        "Key": "Autodesk.DesignScript.Geometry.Point",
+        "Value": "ProtoGeometry.dll"
+      },
+      "Math": {
+        "Key": "DSCore.Math",
+        "Value": "DSCoreNodes.dll"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Python Script | Module ProgressBarUtils\r\nimport sys\r\nimport clr\r\nimport System\r\nfrom System import Array\r\n\r\nclr.AddReference(\"System.Xml\")\r\nclr.AddReference(\"PresentationFramework\")\r\nclr.AddReference(\"System.Xml\")\r\nclr.AddReference(\"PresentationCore\")\r\nclr.AddReference(\"System.Windows\")\r\nclr.AddReference(\"WindowsBase\")\r\nimport System.Windows.Controls \r\nfrom System.Windows.Controls import *\r\nfrom System.IO import StringReader\r\nfrom System.Xml import XmlReader\r\nfrom System.Windows import LogicalTreeHelper \r\nfrom System.Windows.Markup import XamlReader, XamlWriter\r\nfrom System.Windows import Window, Application\r\n\r\nimport traceback\r\n\r\nclass ProgressBarUtils():\r\n    def __init__(self):\r\n        pass\r\n        \r\n    def __name__(self):\r\n        return 'ProgressBarUtils'\r\n        \r\n        \r\n    class ProgressBarDialog(Window):\r\n        LAYOUT = '''\r\n        <Window \r\n        xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"\r\n        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\r\n        xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\"\r\n        xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\r\n        Title=\"Progression\"\r\n        Height=\"200\" Width=\"400\"\r\n        MinHeight=\"200\" MinWidth=\"400\"\r\n        ResizeMode=\"CanResizeWithGrip\"\r\n        x:Name=\"MainWindow\">\r\n        <Grid>\r\n            <ProgressBar\r\n                Name=\"pbar\"\r\n                Minimum=\"0\" Maximum=\"100\"\r\n                Grid.Column=\"0\" Grid.Row=\"0\"\r\n                HorizontalAlignment=\"Stretch\" VerticalAlignment=\"Top\"\r\n                Margin=\"20,40,20,10\"\r\n                Height=\"30\" />\r\n            <TextBlock\r\n                Name=\"progressText\"\r\n                TextAlignment=\"Center\"\r\n                Text=\"--\"\r\n                Height=\"20\"\r\n                VerticalAlignment=\"Top\" HorizontalAlignment=\"Stretch\"\r\n                Grid.Row=\"0\" Grid.Column=\"0\"\r\n                Margin=\"5,45,5,5\" />\r\n            <TextBlock\r\n                Name=\"infotext\"\r\n                TextAlignment=\"Left\"\r\n                Text=\"--\"\r\n                Height=\"40\"\r\n                VerticalAlignment=\"Bottom\" HorizontalAlignment=\"Stretch\"\r\n                Grid.Row=\"0\" Grid.Column=\"0\"\r\n                Margin=\"20,20,20,25\" />\r\n        </Grid>\r\n    </Window>'''\r\n        \r\n        def __init__(self, max, title = \"\"):\r\n            super().__init__()\r\n            xr = XmlReader.Create(StringReader(ProgressBarUtils.ProgressBarDialog.LAYOUT))\r\n            self.winLoad = XamlReader.Load(xr) \r\n            self.progressText = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"progressText\")\r\n            self.pbar = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"pbar\")\r\n            self.infoText = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"infotext\")\r\n            self.new_value = 0\r\n            self.new_textInfo = \"--\"\r\n            self.infoText.Text = self.new_textInfo\r\n            self.pbar.Maximum = max\r\n            self.winLoad.Title = title\r\n            self.method_info_dispatcher  = next(\r\n                                                (m for m in self.winLoad.Dispatcher.GetType().GetMethods()\\\r\n                                                if \"Void Invoke(System.Action, System.Windows.Threading.DispatcherPriority)\" == m.ToString()),\r\n                                                None)\r\n            self._dispatch_updater()\r\n            \r\n    \r\n        def _dispatch_updater(self):\r\n            try:\r\n                # ask WPF dispatcher for gui update\r\n                if self.method_info_dispatcher is not None:\r\n                    args = Array[System.Object]([System.Action(self._update_pbar), System.Windows.Threading.DispatcherPriority.Background])\r\n                    self.method_info_dispatcher.Invoke(self.winLoad.Dispatcher, args)\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n    \r\n        def _update_pbar(self):\r\n            try:\r\n                self.pbar.Value = self.new_value\r\n                self.progressText.Text = \"Items Processing: {}/{}\".format(int(self.pbar.Value), int(self.pbar.Maximum))\r\n                self.infoText.Text = self.new_textInfo\r\n                if self.pbar.Value == self.pbar.Maximum:\r\n                    self.winLoad.Close()\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n        \r\n        def update_progress(self, value):\r\n            try:\r\n                self.new_value = value\r\n                self._dispatch_updater()\r\n                self.winLoad.Activate()\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n            \r\n    class MyProgressBroadcaster():\r\n        \"\"\"\r\n        main Class to Start UI and build a custom Event with a  ContextManager\r\n        \"\"\"\r\n        def __init__(self, numberLines, title = \"My_progressBar\"):\r\n            self.numberLines = numberLines\r\n            self.title = title\r\n            self.ui = None\r\n            \r\n        def next(self, infoPgb=\"-\"):\r\n            if self.ui is not None:\r\n                try:\r\n                    self.ui.new_textInfo = infoPgb\r\n                    self.ui.update_progress(self.ui.new_value + 1)\r\n                except Exception as ex:\r\n                    print(traceback.format_exc())\r\n            \r\n        def __enter__(self):        \r\n            try:\r\n                self.ui = ProgressBarUtils.ProgressBarDialog(self.numberLines, self.title)\r\n                self.ui.winLoad.Show()\r\n                return self\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n                return None\r\n            \r\n        def __exit__(self, exc_type, exc_value, traceback):\r\n            try:\r\n                print(exc_type)\r\n                print(exc_value)\r\n                if traceback:\r\n                    exc_tbnext = traceback\r\n                    lst_lines_error = []\r\n                    for i in range(2):\r\n                        if exc_tbnext is not None:\r\n                            lst_lines_error.append(str(exc_tbnext.tb_lineno))\r\n                            exc_tbnext = exc_tbnext.tb_next\r\n                        else:\r\n                            break\r\n                    #print(lst_lines_error)\r\n                    error = \"Error : {} at lines : line : {}\".format( exc_value, \" -> line : \".join(lst_lines_error))\r\n                    print(\"{}\\n{}\".format(exc_type.__name__, error))\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n\r\nOUT = ProgressBarUtils",
+      "Engine": "PythonNet3",
+      "VariableInputPorts": true,
+      "Id": "192f0c87f5cb4f94840ff68ff7c7f089",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "a7efda48a7544947a491a3389f8a4f3a",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport time\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\nlstPoints = IN[0]\r\nProgressBarUtils = IN[1]()\r\n\r\n# Place your code below this line\r\n\r\nwith ProgressBarUtils.MyProgressBroadcaster(len(lstPoints), \"Test PythonNet3 Engine\") as pgb:\r\n    for p in lstPoints:\r\n        time.sleep(0.02)\r\n        pgb.next(f\"Success Process with item : {p.ToString()}\")",
+      "Engine": "PythonNet3",
+      "VariableInputPorts": true,
+      "Id": "140ee384f96645a9b480a6f917258af5",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "623a1714f24c40488a59819485af9d7c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0247f29ef6794135bb28507d73cbcf4b",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "eaae437e52004f7382f770ddb4c36c23",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "Id": "ec39de7340b2491ba26120292810561e",
+      "NodeType": "CodeBlockNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "54fdd3c6d14d4f9ca91f02b806f306d8",
+          "Name": "",
+          "Description": "pts",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly",
+      "Code": "pts = Point.ByCoordinates(Math.RandomList(200) * 10, Math.RandomList(200) * 10, Math.RandomList(200) * 10);"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Python Script | Module ProgressBarUtils\r\nimport sys\r\nimport clr\r\nimport System\r\nfrom System import Array\r\n\r\nclr.AddReference(\"System.Xml\")\r\nclr.AddReference(\"PresentationFramework\")\r\nclr.AddReference(\"System.Xml\")\r\nclr.AddReference(\"PresentationCore\")\r\nclr.AddReference(\"System.Windows\")\r\nclr.AddReference(\"WindowsBase\")\r\nimport System.Windows.Controls \r\nfrom System.Windows.Controls import *\r\nfrom System.IO import StringReader\r\nfrom System.Xml import XmlReader\r\nfrom System.Windows import LogicalTreeHelper \r\nfrom System.Windows.Markup import XamlReader, XamlWriter\r\nfrom System.Windows import Window, Application\r\n\r\nimport traceback\r\n\r\nclass ProgressBarUtils():\r\n    def __init__(self):\r\n        pass\r\n        \r\n    def __name__(self):\r\n        return 'ProgressBarUtils'\r\n        \r\n        \r\n    class ProgressBarDialog(Window):\r\n        LAYOUT = '''\r\n        <Window \r\n        xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"\r\n        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\r\n        xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\"\r\n        xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\r\n        Title=\"Progression\"\r\n        Height=\"200\" Width=\"400\"\r\n        MinHeight=\"200\" MinWidth=\"400\"\r\n        ResizeMode=\"CanResizeWithGrip\"\r\n        x:Name=\"MainWindow\">\r\n        <Grid>\r\n            <ProgressBar\r\n                Name=\"pbar\"\r\n                Minimum=\"0\" Maximum=\"100\"\r\n                Grid.Column=\"0\" Grid.Row=\"0\"\r\n                HorizontalAlignment=\"Stretch\" VerticalAlignment=\"Top\"\r\n                Margin=\"20,40,20,10\"\r\n                Height=\"30\" />\r\n            <TextBlock\r\n                Name=\"progressText\"\r\n                TextAlignment=\"Center\"\r\n                Text=\"--\"\r\n                Height=\"20\"\r\n                VerticalAlignment=\"Top\" HorizontalAlignment=\"Stretch\"\r\n                Grid.Row=\"0\" Grid.Column=\"0\"\r\n                Margin=\"5,45,5,5\" />\r\n            <TextBlock\r\n                Name=\"infotext\"\r\n                TextAlignment=\"Left\"\r\n                Text=\"--\"\r\n                Height=\"40\"\r\n                VerticalAlignment=\"Bottom\" HorizontalAlignment=\"Stretch\"\r\n                Grid.Row=\"0\" Grid.Column=\"0\"\r\n                Margin=\"20,20,20,25\" />\r\n        </Grid>\r\n    </Window>'''\r\n        \r\n        def __init__(self, max, title = \"\"):\r\n            super().__init__()\r\n            xr = XmlReader.Create(StringReader(ProgressBarUtils.ProgressBarDialog.LAYOUT))\r\n            self.winLoad = XamlReader.Load(xr) \r\n            self.progressText = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"progressText\")\r\n            self.pbar = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"pbar\")\r\n            self.infoText = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"infotext\")\r\n            self.new_value = 0\r\n            self.new_textInfo = \"--\"\r\n            self.infoText.Text = self.new_textInfo\r\n            self.pbar.Maximum = max\r\n            self.winLoad.Title = title\r\n            self.method_info_dispatcher  = next(\r\n                                                (m for m in self.winLoad.Dispatcher.GetType().GetMethods()\\\r\n                                                if \"Void Invoke(System.Action, System.Windows.Threading.DispatcherPriority)\" == m.ToString()),\r\n                                                None)\r\n            self._dispatch_updater()\r\n            \r\n    \r\n        def _dispatch_updater(self):\r\n            try:\r\n                # ask WPF dispatcher for gui update\r\n                if self.method_info_dispatcher is not None:\r\n                    args = Array[System.Object]([System.Action(self._update_pbar), System.Windows.Threading.DispatcherPriority.Background])\r\n                    self.method_info_dispatcher.Invoke(self.winLoad.Dispatcher, args)\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n    \r\n        def _update_pbar(self):\r\n            try:\r\n                self.pbar.Value = self.new_value\r\n                self.progressText.Text = \"Items Processing: {}/{}\".format(int(self.pbar.Value), int(self.pbar.Maximum))\r\n                self.infoText.Text = self.new_textInfo\r\n                if self.pbar.Value == self.pbar.Maximum:\r\n                    self.winLoad.Close()\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n        \r\n        def update_progress(self, value):\r\n            try:\r\n                self.new_value = value\r\n                self._dispatch_updater()\r\n                self.winLoad.Activate()\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n            \r\n    class MyProgressBroadcaster():\r\n        \"\"\"\r\n        main Class to Start UI and build a custom Event with a  ContextManager\r\n        \"\"\"\r\n        def __init__(self, numberLines, title = \"My_progressBar\"):\r\n            self.numberLines = numberLines\r\n            self.title = title\r\n            self.ui = None\r\n            \r\n        def next(self, infoPgb=\"-\"):\r\n            if self.ui is not None:\r\n                try:\r\n                    self.ui.new_textInfo = infoPgb\r\n                    self.ui.update_progress(self.ui.new_value + 1)\r\n                except Exception as ex:\r\n                    print(traceback.format_exc())\r\n            \r\n        def __enter__(self):        \r\n            try:\r\n                self.ui = ProgressBarUtils.ProgressBarDialog(self.numberLines, self.title)\r\n                self.ui.winLoad.Show()\r\n                return self\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n                return None\r\n            \r\n        def __exit__(self, exc_type, exc_value, traceback):\r\n            try:\r\n                print(exc_type)\r\n                print(exc_value)\r\n                if traceback:\r\n                    exc_tbnext = traceback\r\n                    lst_lines_error = []\r\n                    for i in range(2):\r\n                        if exc_tbnext is not None:\r\n                            lst_lines_error.append(str(exc_tbnext.tb_lineno))\r\n                            exc_tbnext = exc_tbnext.tb_next\r\n                        else:\r\n                            break\r\n                    #print(lst_lines_error)\r\n                    error = \"Error : {} at lines : line : {}\".format( exc_value, \" -> line : \".join(lst_lines_error))\r\n                    print(\"{}\\n{}\".format(exc_type.__name__, error))\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n\r\nOUT = ProgressBarUtils",
+      "Engine": "IronPython3",
+      "VariableInputPorts": true,
+      "Id": "cb8b748152b64c4fa85493d8992e088a",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "13f841a85cd449f28354af5a0b7ea31e",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport time\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\nlstPoints = IN[0]\r\nProgressBarUtils = IN[1]()\r\n\r\n# Place your code below this line\r\n\r\nwith ProgressBarUtils.MyProgressBroadcaster(len(lstPoints), \"Test Ironpython3 Engine\") as pgb:\r\n    for p in lstPoints:\r\n        time.sleep(0.02)\r\n        pgb.next(f\"Success Process with item : {p.ToString()}\")",
+      "Engine": "IronPython3",
+      "VariableInputPorts": true,
+      "Id": "d347fb39371f4bc99c456f8419515989",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "76b6872f13ed44b68a0a4d0afdfeec2c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "e40432c81dcf44549428eda7d9ade6bc",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "d647c7cf5f054cd2b584181fdd2cdbc6",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Python Script | Module ProgressBarUtils\r\nimport sys\r\nimport clr\r\nimport System\r\nfrom System import Array\r\n\r\nclr.AddReference(\"System.Xml\")\r\nclr.AddReference(\"PresentationFramework\")\r\nclr.AddReference(\"System.Xml\")\r\nclr.AddReference(\"PresentationCore\")\r\nclr.AddReference(\"System.Windows\")\r\nclr.AddReference(\"WindowsBase\")\r\nimport System.Windows.Controls \r\nfrom System.Windows.Controls import *\r\nfrom System.IO import StringReader\r\nfrom System.Xml import XmlReader\r\nfrom System.Windows import LogicalTreeHelper \r\nfrom System.Windows.Markup import XamlReader, XamlWriter\r\nfrom System.Windows import Window, Application\r\n\r\nimport traceback\r\n\r\nclass ProgressBarUtils():\r\n    def __init__(self):\r\n        pass\r\n        \r\n    def __name__(self):\r\n        return 'ProgressBarUtils'\r\n        \r\n        \r\n    class ProgressBarDialog(Window):\r\n        LAYOUT = '''\r\n        <Window \r\n        xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"\r\n        xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\"\r\n        xmlns:d=\"http://schemas.microsoft.com/expression/blend/2008\"\r\n        xmlns:mc=\"http://schemas.openxmlformats.org/markup-compatibility/2006\"\r\n        Title=\"Progression\"\r\n        Height=\"200\" Width=\"400\"\r\n        MinHeight=\"200\" MinWidth=\"400\"\r\n        ResizeMode=\"CanResizeWithGrip\"\r\n        x:Name=\"MainWindow\">\r\n        <Grid>\r\n            <ProgressBar\r\n                Name=\"pbar\"\r\n                Minimum=\"0\" Maximum=\"100\"\r\n                Grid.Column=\"0\" Grid.Row=\"0\"\r\n                HorizontalAlignment=\"Stretch\" VerticalAlignment=\"Top\"\r\n                Margin=\"20,40,20,10\"\r\n                Height=\"30\" />\r\n            <TextBlock\r\n                Name=\"progressText\"\r\n                TextAlignment=\"Center\"\r\n                Text=\"--\"\r\n                Height=\"20\"\r\n                VerticalAlignment=\"Top\" HorizontalAlignment=\"Stretch\"\r\n                Grid.Row=\"0\" Grid.Column=\"0\"\r\n                Margin=\"5,45,5,5\" />\r\n            <TextBlock\r\n                Name=\"infotext\"\r\n                TextAlignment=\"Left\"\r\n                Text=\"--\"\r\n                Height=\"40\"\r\n                VerticalAlignment=\"Bottom\" HorizontalAlignment=\"Stretch\"\r\n                Grid.Row=\"0\" Grid.Column=\"0\"\r\n                Margin=\"20,20,20,25\" />\r\n        </Grid>\r\n    </Window>'''\r\n        \r\n        def __init__(self, max, title = \"\"):\r\n            super().__init__()\r\n            xr = XmlReader.Create(StringReader(ProgressBarUtils.ProgressBarDialog.LAYOUT))\r\n            self.winLoad = XamlReader.Load(xr) \r\n            self.progressText = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"progressText\")\r\n            self.pbar = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"pbar\")\r\n            self.infoText = LogicalTreeHelper.FindLogicalNode(self.winLoad, \"infotext\")\r\n            self.new_value = 0\r\n            self.new_textInfo = \"--\"\r\n            self.infoText.Text = self.new_textInfo\r\n            self.pbar.Maximum = max\r\n            self.winLoad.Title = title\r\n            self.method_info_dispatcher  = next(\r\n                                                (m for m in self.winLoad.Dispatcher.GetType().GetMethods()\\\r\n                                                if \"Void Invoke(System.Action, System.Windows.Threading.DispatcherPriority)\" == m.ToString()),\r\n                                                None)\r\n            self._dispatch_updater()\r\n            \r\n    \r\n        def _dispatch_updater(self):\r\n            try:\r\n                # ask WPF dispatcher for gui update\r\n                if self.method_info_dispatcher is not None:\r\n                    args = Array[System.Object]([System.Action(self._update_pbar), System.Windows.Threading.DispatcherPriority.Background])\r\n                    self.method_info_dispatcher.Invoke(self.winLoad.Dispatcher, args)\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n    \r\n        def _update_pbar(self):\r\n            try:\r\n                self.pbar.Value = self.new_value\r\n                self.progressText.Text = \"Items Processing: {}/{}\".format(int(self.pbar.Value), int(self.pbar.Maximum))\r\n                self.infoText.Text = self.new_textInfo\r\n                if self.pbar.Value == self.pbar.Maximum:\r\n                    self.winLoad.Close()\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n        \r\n        def update_progress(self, value):\r\n            try:\r\n                self.new_value = value\r\n                self._dispatch_updater()\r\n                self.winLoad.Activate()\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n            \r\n    class MyProgressBroadcaster():\r\n        \"\"\"\r\n        main Class to Start UI and build a custom Event with a  ContextManager\r\n        \"\"\"\r\n        def __init__(self, numberLines, title = \"My_progressBar\"):\r\n            self.numberLines = numberLines\r\n            self.title = title\r\n            self.ui = None\r\n            \r\n        def next(self, infoPgb=\"-\"):\r\n            if self.ui is not None:\r\n                try:\r\n                    self.ui.new_textInfo = infoPgb\r\n                    self.ui.update_progress(self.ui.new_value + 1)\r\n                except Exception as ex:\r\n                    print(traceback.format_exc())\r\n            \r\n        def __enter__(self):        \r\n            try:\r\n                self.ui = ProgressBarUtils.ProgressBarDialog(self.numberLines, self.title)\r\n                self.ui.winLoad.Show()\r\n                return self\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n                return None\r\n            \r\n        def __exit__(self, exc_type, exc_value, traceback):\r\n            try:\r\n                print(exc_type)\r\n                print(exc_value)\r\n                if traceback:\r\n                    exc_tbnext = traceback\r\n                    lst_lines_error = []\r\n                    for i in range(2):\r\n                        if exc_tbnext is not None:\r\n                            lst_lines_error.append(str(exc_tbnext.tb_lineno))\r\n                            exc_tbnext = exc_tbnext.tb_next\r\n                        else:\r\n                            break\r\n                    #print(lst_lines_error)\r\n                    error = \"Error : {} at lines : line : {}\".format( exc_value, \" -> line : \".join(lst_lines_error))\r\n                    print(\"{}\\n{}\".format(exc_type.__name__, error))\r\n            except Exception as ex:\r\n                print(traceback.format_exc())\r\n\r\nOUT = ProgressBarUtils",
+      "Engine": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "5b920309058a4abeba1dd22df74a941d",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "5c39818496784f03b0faf72e7004942e",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport time\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\nlstPoints = IN[0]\r\nProgressBarUtils = IN[1]()\r\n\r\n# Place your code below this line\r\n\r\nwith ProgressBarUtils.MyProgressBroadcaster(len(lstPoints), \"Test CPython3 Engine\") as pgb:\r\n    for p in lstPoints:\r\n        time.sleep(0.02)\r\n        pgb.next(f\"Success Process with item : {p.ToString()}\")",
+      "Engine": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "e71c0f0a10474c73a74464ab8eaf6de5",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "baf4a885a3cc49c4861096d4a745d297",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0c04b64cae924cb59202cd559bc0acc1",
+          "Name": "IN[1]",
+          "Description": "Input #1",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "166e1ce0f52c47ae9aa9f7647bc02cb5",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "a7efda48a7544947a491a3389f8a4f3a",
+      "End": "0247f29ef6794135bb28507d73cbcf4b",
+      "Id": "25645b37232f4f5dba93c7a509f52471",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "54fdd3c6d14d4f9ca91f02b806f306d8",
+      "End": "623a1714f24c40488a59819485af9d7c",
+      "Id": "8dc440acd34d4c36986cdafa602e5fb5",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "54fdd3c6d14d4f9ca91f02b806f306d8",
+      "End": "76b6872f13ed44b68a0a4d0afdfeec2c",
+      "Id": "137ab27e4f9f4c0dbc93612c2b6d0eb1",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "54fdd3c6d14d4f9ca91f02b806f306d8",
+      "End": "baf4a885a3cc49c4861096d4a745d297",
+      "Id": "edea57a6f08c4051a6cf8186091f34e0",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "13f841a85cd449f28354af5a0b7ea31e",
+      "End": "e40432c81dcf44549428eda7d9ade6bc",
+      "Id": "27655ff29d6a45878612a568f9442cbb",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "5c39818496784f03b0faf72e7004942e",
+      "End": "0c04b64cae924cb59202cd559bc0acc1",
+      "Id": "13198648cc594a73a412c6fc365c7741",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [],
+  "EnableLegacyPolyCurveBehavior": true,
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.12",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "1.10",
+      "Data": {}
+    }
+  ],
+  "Author": "",
+  "Linting": {
+    "activeLinter": "None",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 10000.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "3.3.0.6316",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "_Background Preview",
+      "EyeX": -17.0,
+      "EyeY": 24.0,
+      "EyeZ": 50.0,
+      "LookX": 12.0,
+      "LookY": -13.0,
+      "LookZ": -58.0,
+      "UpX": 0.0,
+      "UpY": 1.0,
+      "UpZ": 0.0
+    },
+    "ConnectorPins": [],
+    "NodeViews": [
+      {
+        "Id": "192f0c87f5cb4f94840ff68ff7c7f089",
+        "Name": "Python Script | Module ProgressBarUtils",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": false,
+        "X": 790.6160317567419,
+        "Y": 106.09435761208425
+      },
+      {
+        "Id": "140ee384f96645a9b480a6f917258af5",
+        "Name": "Python Script",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 1378.3835864925713,
+        "Y": 69.75606768206495
+      },
+      {
+        "Id": "ec39de7340b2491ba26120292810561e",
+        "Name": "Code Block",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": -317.8804803818243,
+        "Y": -167.36206961513986
+      },
+      {
+        "Id": "cb8b748152b64c4fa85493d8992e088a",
+        "Name": "Python Script | Module ProgressBarUtils",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": false,
+        "X": 452.2848817481249,
+        "Y": 377.10255545918415
+      },
+      {
+        "Id": "d347fb39371f4bc99c456f8419515989",
+        "Name": "Python Script",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 1040.0524364839544,
+        "Y": 340.76426552916485
+      },
+      {
+        "Id": "5b920309058a4abeba1dd22df74a941d",
+        "Name": "Python Script | Module ProgressBarUtils",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": false,
+        "X": 63.37575030606672,
+        "Y": 656.4271983216837
+      },
+      {
+        "Id": "e71c0f0a10474c73a74464ab8eaf6de5",
+        "Name": "Python Script",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 650.070126647536,
+        "Y": 620.0889083916644
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "f4eb284b467c454eb125fc6bab6f5e70",
+        "Title": "test WPF ProgressBar CPython3",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "5b920309058a4abeba1dd22df74a941d",
+          "e71c0f0a10474c73a74464ab8eaf6de5"
+        ],
+        "HasNestedGroups": false,
+        "Left": 53.37575030606672,
+        "Top": 547.0889083916644,
+        "Width": 780.6943763414693,
+        "Height": 253.3382899300193,
+        "FontSize": 36.0,
+        "GroupStyleId": "00000000-0000-0000-0000-000000000000",
+        "InitialTop": 620.0889083916644,
+        "InitialHeight": 181.3382899300193,
+        "TextblockHeight": 63.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "606f648283454a2886353ec49c27c024",
+        "Title": "test WPF ProgressBar Ipy3",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "cb8b748152b64c4fa85493d8992e088a",
+          "d347fb39371f4bc99c456f8419515989"
+        ],
+        "HasNestedGroups": false,
+        "Left": 442.2848817481249,
+        "Top": 267.76426552916485,
+        "Width": 781.7675547358294,
+        "Height": 253.3382899300193,
+        "FontSize": 36.0,
+        "GroupStyleId": "00000000-0000-0000-0000-000000000000",
+        "InitialTop": 340.76426552916485,
+        "InitialHeight": 181.3382899300193,
+        "TextblockHeight": 63.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "ad5d3018d5f7493a85130c81be6b1d03",
+        "Title": "test WPF ProgressBar PythonNet3",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "192f0c87f5cb4f94840ff68ff7c7f089",
+          "140ee384f96645a9b480a6f917258af5"
+        ],
+        "HasNestedGroups": false,
+        "Left": 780.6160317567419,
+        "Top": -3.243932317935048,
+        "Width": 781.7675547358294,
+        "Height": 253.3382899300193,
+        "FontSize": 36.0,
+        "GroupStyleId": "00000000-0000-0000-0000-000000000000",
+        "InitialTop": 69.75606768206495,
+        "InitialHeight": 181.3382899300193,
+        "TextblockHeight": 63.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "ea526c622466481a9483198f33c420df",
+        "Title": "inputs data Points",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "ec39de7340b2491ba26120292810561e"
+        ],
+        "HasNestedGroups": false,
+        "Left": -327.8804803818243,
+        "Top": -240.36206961513986,
+        "Width": 758.0,
+        "Height": 215.0,
+        "FontSize": 36.0,
+        "GroupStyleId": "883066aa-1fe2-44a4-9bd1-c3df86bfe9f6",
+        "InitialTop": -167.36206961513986,
+        "InitialHeight": 145.0,
+        "TextblockHeight": 63.0,
+        "Background": "#FFFFB8D8"
+      }
+    ],
+    "X": 298.85550483295845,
+    "Y": 195.3974773096088,
+    "Zoom": 0.7705168482022455
+  }
+}
